@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-title"><h1>History</h1><p>Past and upcoming driver assignments.</p></div>
+<section class="card list-card">
+  {% if rows %}
+    {% for r in rows %}
+    <div class="history-row">
+      <div><b>{{ r.assignment.date }}</b><p>Driver: <span class="blue-text">{{ r.driver.name if r.driver else 'No driver' }}</span></p></div>
+      <span class="badge green">{{ r.assignment.type|title }}</span>
+    </div>
+    {% endfor %}
+  {% else %}<p class="muted">No history yet. Open calendar to generate assignments.</p>{% endif %}
+</section>
+{% endblock %}

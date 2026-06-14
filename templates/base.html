@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or 'Car Pool Manager' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='final-fix.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='invite-clean.css') }}?v=2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='people-actions.css') }}?v=1">
+</head>
+<body>
+  {% if current_user %}
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-icon">🚙</span><span>Car Pool Manager</span></a>
+    <nav class="topnav">
+      <a class="nav-item {% if request.endpoint=='dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span class="cal-icon cal-icon-blue" aria-hidden="true"></span> Calendar</a>
+      <a class="nav-item {% if request.endpoint in ['people','member_schedule'] %}active{% endif %}" href="{{ url_for('people') }}">👥 People</a>
+      <a class="nav-item {% if request.endpoint=='history' %}active{% endif %}" href="{{ url_for('history') }}">↺ History</a>
+      <a class="nav-item {% if request.endpoint=='alerts' %}active{% endif %}" href="{{ url_for('alerts') }}">🔔 Alerts {% if unread_alerts %}<span class="dot">{{ unread_alerts }}</span>{% endif %}</a>
+    </nav>
+    <div class="profile-zone">
+      {% if active_group %}<span class="group-pill">👥 {{ active_group.name }}</span>{% endif %}
+      <span class="avatar-mini"><img src="{{ url_for('static', filename='avatars/' ~ current_user.avatar) }}"></span>
+      <a class="logout-link" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="page {% if not current_user %}auth-page{% endif %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="toast-wrap">
+        {% for category, message in messages %}
+          <div class="toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% if current_user %}
+  <nav class="mobile-nav">
+    <a class="{% if request.endpoint=='dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">⌂<span>Home</span></a>
+    <a class="{% if request.endpoint=='dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span class="cal-icon cal-icon-blue" aria-hidden="true"></span><span>Calendar</span></a>
+    <a class="{% if request.endpoint in ['people','member_schedule'] %}active{% endif %}" href="{{ url_for('people') }}">👥<span>People</span></a>
+    <a class="{% if request.endpoint=='history' %}active{% endif %}" href="{{ url_for('history') }}">↺<span>History</span></a>
+    <a class="{% if request.endpoint=='alerts' %}active{% endif %}" href="{{ url_for('alerts') }}">🔔<span>Alerts</span></a>
+  </nav>
+  {% endif %}
+  <script>
+    setTimeout(()=>document.querySelectorAll('.toast').forEach(t=>t.classList.add('hide')), 3200);
+  </script>
+</body>
+</html>

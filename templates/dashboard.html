@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="dashboard-grid final-dashboard">
+  <aside class="card rotation-card">
+    <div class="card-heading"><span class="icon-box"><span class="cal-icon" aria-hidden="true"></span></span><h2>Today’s rotation</h2></div>
+    <p class="date-line"><span class="cal-icon cal-icon-muted" aria-hidden="true"></span> {{ today.date.strftime('%A, %d %b %Y') }}</p>
+    <p class="muted small">Original driver</p>
+    <h3 class="driver-name">{{ today.driver.name if today.driver else ('Today is holiday' if today.date.weekday() >= 5 else 'No driver assigned') }}</h3>
+    <hr>
+    <p class="muted small">Updated suggestion <span class="badge green">New</span></p>
+    <h1 class="suggestion-name">{{ suggested.name if suggested else ('No car rotation today' if today.date.weekday() >= 5 else 'No available driver') }}</h1>
+    {% if today.date.weekday() >= 5 %}
+    <div class="blue-note no-link">🛡 Weekend days are holidays. Next rotation starts Monday.</div>
+    {% else %}
+    <a class="blue-note" href="{{ url_for('status_action', action='cant_bring_car') }}">🛡 Reassigned fairly based on availability and duty balance. <span>›</span></a>
+    {% endif %}
+    <a class="daily-test-link" href="{{ url_for('daily_email_test') }}">✉ Send daily test email</a>
+  </aside>
+
+  <section class="card weekly-card">
+    <div class="weekly-head">
+      <div class="card-heading"><span class="icon-box gray"><span class="cal-icon cal-icon-muted" aria-hidden="true"></span></span><h2>Weekly schedule</h2></div>
+      <div class="week-nav">
+        <a class="week-nav-btn" href="{{ url_for('dashboard', week=week_offset-1) }}" aria-label="Previous week">‹</a>
+        <a class="week-nav-current" href="{{ url_for('dashboard', week=0) }}">This week</a>
+        <a class="week-nav-btn" href="{{ url_for('dashboard', week=week_offset+1) }}" aria-label="Next week">›</a>
+      </div>
+    </div>
+    <div class="week-table">
+      {% for day in days %}
+      <div class="week-cell {% if day.is_today %}today{% endif %}">
+        <div class="weekday">{{ day.short }}</div>
+        <div class="date-small">{{ day.day_num }} {{ day.month }}</div>
+        {% if day.is_today %}<span class="today-pill">Today</span>{% endif %}
+        {% if day.is_weekend %}
+          <div class="holiday-icon"><span class="cal-icon cal-icon-muted" aria-hidden="true"></span></div><div class="holiday-text">Holiday</div>
+        {% elif day.driver %}
+          <img class="avatar-lg" src="{{ url_for('static', filename='avatars/' ~ day.driver.avatar) }}">
+          <strong>{{ day.driver.name.split()[0] }}</strong>
+          <span class="check">✓</span>
+        {% else %}
+          <div class="empty-driver">No driver</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card-foot">ⓘ Sat & Sun are marked as holidays</div>
+  </section>
+
+  <section class="card members-card">
+    <div class="card-heading"><span class="section-ico">👥</span><h2>Members & weekly availability</h2></div>
+    <div class="member-availability">
+      {% for m in members %}
+      <div class="availability-row">
+        <div class="person-left"><img class="avatar" src="{{ url_for('static', filename='avatars/' ~ m.avatar) }}"><strong>{{ m.name.split()[0] }}</strong></div>
+        <div class="day-chips">
+          {% for d, short, full in weekdays %}<span class="chip {% if d not in m.working_days %}off{% endif %}">{{ short }}</span>{% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="legend"><span><i class="blue-dot"></i> Available</span><span><i class="gray-dot"></i> Not available</span></div>
+  </section>
+
+  <section class="card status-card">
+    <div class="card-heading"><span class="section-ico">🔔</span><h2>Today’s status updates</h2></div>
+    <div class="status-list">
+      {% for row in today.statuses %}
+      <div class="status-row">
+        <img class="avatar" src="{{ url_for('static', filename='avatars/' ~ row.member.avatar) }}">
+        <strong>{{ row.member.name.split()[0] }}</strong>
+        {% if row.status == 'available' %}<span class="status good">Available ✓</span>{% else %}<span class="status warn">{{ row.label }}</span>{% endif %}
+        <span class="chev">›</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% if today.date.weekday() >= 5 %}
+    <div class="holiday-empty"><strong>Holiday mode</strong><p>Status actions are disabled because Saturday and Sunday have no car rotation.</p></div>
+    {% else %}
+    <div class="action-row">
+      <a href="{{ url_for('status_action', action='cant_bring_car') }}" class="btn primary">🚙 I can’t bring car</a>
+      <a href="{{ url_for('status_action', action='may_not_come') }}" class="btn outline">⚑ I may not come</a>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="card insight-card">
+    <div class="card-heading"><span class="spark">✧</span><h2>Fair rotation insight</h2></div>
+    <div class="insight-box"><div class="scale-icon">⚖</div><p><b>{{ suggested.name.split()[0] if suggested else ('No driver' if today.date.weekday() >= 5 else 'No one') }} is suggested for today.</b><br>{{ 'Weekend days are excluded from rotation and duty count.' if today.date.weekday() >= 5 else 'He/she is available and has fewer driving duties this week.' }}</p></div>
+    <p class="insight-title">Duty count this week</p>
+    {% for m in members %}
+    <div class="bar-row"><span>{{ m.name.split()[0] }}</span><div class="bar"><i style="width: {{ [m.week_count * 45, 100]|min }}%"></i></div><b>{{ m.week_count }}</b></div>
+    {% endfor %}
+    <div class="fair-score">Fairness score <span class="badge green">Good</span> ⓘ</div>
+  </section>
+</section>
+{% endblock %}

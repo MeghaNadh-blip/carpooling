@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="narrow">
+  <div class="card schedule-edit">
+    <div class="profile-line"><img class="avatar-lg" src="{{ url_for('static', filename='avatars/' ~ member.avatar) }}"><div><h2>{{ member.name }}</h2><p>{{ member.email }}</p></div></div>
+    <form method="post" class="form-stack">
+      <span class="label-text">Select coming days (Mon–Fri)</span>
+      <div class="day-selector">{% for d, short, full in weekdays %}<label><input type="checkbox" name="working_days" value="{{ d }}" {% if d in member.working_days %}checked{% endif %}><span>{{ short }}</span></label>{% endfor %}</div>
+      <p class="soft-note">Sat and Sun are holidays.</p>
+      <button class="btn primary wide">Save schedule</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

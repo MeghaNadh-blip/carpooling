@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="narrow">
+  <div class="page-title"><span class="eyebrow">Setup needed</span><h1>Create your carpool group</h1><p>Choose your usual coming days. Saturday and Sunday are holidays.</p></div>
+  <div class="card setup-card">
+    <form method="post" class="form-stack">
+      <label>Group name<input name="group_name" value="Office Crew" required></label>
+      <div>
+        <span class="label-text">Your coming days</span>
+        <div class="day-selector">
+          {% for d, short, full in weekdays %}
+          <label><input type="checkbox" name="working_days" value="{{ d }}" checked><span>{{ short }}</span></label>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="btn primary wide">Create group</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="status-page-shell">
+  <a class="back-link" href="{{ url_for('dashboard') }}">‹ Back</a>
+  <div class="card status-action-card">
+    <div class="warning-art"><span>🚙</span><b>?</b><i>!</i></div>
+    <h1>{{ label }}</h1>
+    <p>We will notify the group and find the next available driver if needed.</p>
+    <form method="post" class="form-stack">
+      <label>Reason (optional)
+        <select name="reason">
+          <option>Not feeling well</option>
+          <option>Personal work</option>
+          <option>Vehicle problem</option>
+          <option>Office leave</option>
+        </select>
+      </label>
+      <div class="radio-card checked"><b>Find replacement</b><p>Auto assign next available member</p><span>●</span></div>
+      <div class="radio-card"><b>Ask members</b><p>Ask in group and confirm</p><span>○</span></div>
+      <button class="btn primary wide">Notify Group</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

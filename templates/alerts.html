@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-title"><h1>Alerts</h1><p>Group notifications and driver changes.</p></div>
+<section class="card list-card">
+  {% if alerts %}
+    {% for a in alerts %}
+    <div class="alert-row {{ a.kind }}"><div><b>{{ a.title }}</b><p>{{ a.message }}</p></div><small>{{ a.created_at.strftime('%d %b, %I:%M %p') if a.created_at else '' }}</small></div>
+    {% endfor %}
+  {% else %}<p class="muted">No alerts yet.</p>{% endif %}
+</section>
+{% endblock %}

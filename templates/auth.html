@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-card clean-auth-card">
+    <div class="auth-logo"><span>🚙</span><b>Car Pool Manager</b></div>
+    {% if mode == 'register' %}
+      <h1>Create account</h1>
+      <p class="muted">Create your account and set up your car pool group.</p>
+      <form method="post" class="form-stack auth-form-clean">
+        <label>Name<input name="name" required autocomplete="name"></label>
+        <label>Gender
+          <select name="gender" required>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </label>
+        <label>Email<input type="email" name="email" required autocomplete="email"></label>
+        <label>Password<input type="password" name="password" required autocomplete="new-password"></label>
+        <button class="btn primary wide">Create account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+    {% else %}
+      <h1>Welcome back</h1>
+      <p class="muted">Login to manage your group rotation.</p>
+      <form method="post" class="form-stack auth-form-clean">
+        <label>Email<input type="email" name="email" required autocomplete="email"></label>
+        <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+        <button class="btn primary wide">Login</button>
+      </form>
+      <p class="auth-switch"><a href="{{ url_for('forgot_password') }}">Forgot password?</a></p>
+      <p class="auth-switch">New here? <a href="{{ url_for('register') }}">Create account</a></p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-title">
+  <h1>People</h1>
+  <p>Manage members and real invite links.</p>
+</div>
+
+<div class="two-col people-layout">
+  <section class="card people-list-card">
+    <div class="card-heading">
+      <span class="section-ico">👥</span>
+      <h2>Group members</h2>
+    </div>
+
+    {% for m in members %}
+    <div class="member-manage-row">
+      <img class="avatar" src="{{ url_for('static', filename='avatars/' ~ m.avatar) }}" alt="">
+      <div class="member-manage-main">
+        <strong>{{ m.name }}</strong>
+        <p>{{ m.email }}</p>
+        <div class="member-pill-list">
+          {% for s in m.days_short %}<span>{{ s }}</span>{% endfor %}
+        </div>
+      </div>
+      <span class="badge {{ 'green' if m.weekly_days_count>=5 else 'amber' }}">{{ m.weekly_days_count }} days</span>
+      <div class="member-actions-row">
+        <a class="btn ghost small-btn" href="{{ url_for('member_schedule', member_id=m.id) }}">Edit</a>
+        {% if m.id == current_member_id %}
+        <form method="post" action="{{ url_for('leave_group') }}" onsubmit="return confirm('Leave this group? You will be removed from the schedule.');">
+          <button class="btn ghost small-btn danger-btn" type="submit">Leave</button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url_for('remove_member', member_id=m.id) }}" onsubmit="return confirm('Remove {{ m.name }} from this group?');">
+          <button class="btn ghost small-btn danger-btn" type="submit">Remove</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">No confirmed members yet.</div>
+    {% endfor %}
+
+    <div class="section-divider"></div>
+
+    <div class="card-heading small-heading">
+      <span class="section-ico">✉️</span>
+      <h2>Pending invites</h2>
+    </div>
+
+    {% for inv in pending %}
+    <div class="invite-manage-row">
+      <div class="invite-mail-bubble">✉</div>
+      <div class="invite-manage-main">
+        <strong>{{ inv.name or 'Invited member' }}</strong>
+        <p>{{ inv.email }} · {{ inv.created_label }}</p>
+        <div class="invite-day-list">
+          {% for s in inv.days_short %}<span class="invite-day-pill">{{ s }}</span>{% endfor %}
+        </div>
+        <div class="invite-actions-row">
+          <button type="button" class="btn ghost small-btn copy-invite-btn" data-link="{{ url_for('invite', token=inv.token, _external=True) }}">Copy link</button>
+          <form method="post" action="{{ url_for('cancel_invite', invite_id=inv.id) }}">
+            <button class="btn ghost small-btn danger-btn" type="submit">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state small-empty">No pending invites.</div>
+    {% endfor %}
+  </section>
+
+  <section class="card invite-card">
+    <div class="card-heading">
+      <span class="section-ico">✈</span>
+      <h2>Send invite</h2>
+    </div>
+    <form method="post" class="form-stack compact-form">
+      <label>Name<input name="name" required></label>
+      <label>Email<input type="email" name="email" required></label>
+      <label>Gender
+        <select name="gender">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </label>
+      <span class="label-text">Suggested coming days</span>
+      <div class="day-selector compact">
+        {% for d, short, full in weekdays %}
+        <label><input type="checkbox" name="working_days" value="{{ d }}" checked><span>{{ short }}</span></label>
+        {% endfor %}
+      </div>
+      <button class="btn primary wide">Send invite</button>
+    </form>
+  </section>
+</div>
+
+<script>
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.copy-invite-btn');
+  if (!btn) return;
+  const link = btn.dataset.link;
+  try {
+    await navigator.clipboard.writeText(link);
+    const old = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => btn.textContent = old, 1200);
+  } catch (err) {
+    prompt('Copy invite link:', link);
+  }
+});
+</script>
+{% endblock %}

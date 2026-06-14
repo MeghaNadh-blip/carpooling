@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="narrow">
+  <div class="card setup-card invite-accept-card">
+    <span class="eyebrow">Group invite</span>
+    <h1>Join {{ group.name }}</h1>
+    <p class="muted">This invite is for <strong>{{ invite.email }}</strong>. Select your coming days before joining.</p>
+    <div class="invite-summary">
+      <span>Invited as</span><strong>{{ invite.name }}</strong>
+      <span>Suggested days</span><strong>{% for s in invite.days_short %}{{ s }}{% if not loop.last %}, {% endif %}{% endfor %}</strong>
+    </div>
+    <form method="post" class="form-stack">
+      <span class="label-text">Your coming days</span>
+      <div class="day-selector">{% for d, short, full in weekdays %}<label><input type="checkbox" name="working_days" value="{{ d }}" {% if d in invite.working_days %}checked{% endif %}><span>{{ short }}</span></label>{% endfor %}</div>
+      <button class="btn primary wide">Accept invite & join group</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
